@@ -80,15 +80,7 @@ export const login = async (req, res) => {
       secure: false, // set true in production
     });
 
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-      token,
-    });
+    return res.status(200).json(user);
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -103,3 +95,29 @@ export const logout = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const googleLogin = async (req, res) => {
+  try {
+     const { name, email } = req.body;
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+      });
+    }
+    const token = genToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "strict",
+      secure: false, // set true in production
+    });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+}

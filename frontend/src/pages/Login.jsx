@@ -5,22 +5,45 @@ import { FaRegEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import { serverUrl } from "../App";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase";
 import axios from "axios";
 const Login = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = async(e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${serverUrl}/api/auth/login`, { email, password },{withCredentials:true});
-      console.log(res.data.user)
+      const res = await axios.post(
+        `${serverUrl}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+      console.log(res.data.user);
     } catch (error) {
       console.error("Login failed:", error);
     }
-  }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const res = await signInWithPopup(auth, provider);
+      const response = await axios.post(
+        `${serverUrl}/api/auth/google-login`,
+        {
+          name: res.user.displayName,
+          email: res.user.email,
+        },
+        { withCredentials: true }
+      );
+      console.log("Google Signup response:", response.data);
+    } catch (error) {
+      console.error("Google Signup failed:", error);
+    }
+  };
   return (
     <div className="w-screen min-h-screen bg-gradient-to-l from-[#141414] to-[#0c2025] text-white flex flex-col items-center justify-start">
       <div
@@ -37,8 +60,14 @@ const Login = () => {
         </span>
       </div>
       <div className="max-w-[600px] w-[90%] h-[500px] bg-[#00000025] border-[1px] border-[#96969635] backdrop-blur-2xl rounded-lg shadow-lg flex items-center justify-center">
-        <form onSubmit={handleLogin} className="w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]">
-          <div className="w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer">
+        <form
+          onSubmit={handleLogin}
+          className="w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]"
+        >
+          <div
+            onClick={handleGoogleLogin}
+            className="w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer"
+          >
             <FcGoogle size={24} />
             <span>Login with Google</span>
           </div>
@@ -76,14 +105,20 @@ const Login = () => {
                 size={20}
               />
             )}
-            <button className="w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold">Create Account</button>
-            <p onClick={()=> navigate("/signup")} className="flex gap-[10px]">You don't have any account?<span className="text-[#5555f6cf] text-[17px] font-semibold cursor-pointer">Sign Up</span></p>
+            <button className="w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold">
+              Create Account
+            </button>
+            <p onClick={() => navigate("/signup")} className="flex gap-[10px]">
+              You don't have any account?
+              <span className="text-[#5555f6cf] text-[17px] font-semibold cursor-pointer">
+                Sign Up
+              </span>
+            </p>
           </div>
         </form>
       </div>
     </div>
   );
-}
+};
 
-
-export default Login
+export default Login;

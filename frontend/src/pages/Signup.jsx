@@ -6,21 +6,45 @@ import { FaRegEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import axios from "axios";
 import { serverUrl } from "../App";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase";
+
 const Signup = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false)
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  
-  const handleSignup = async(e) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${serverUrl}/api/auth/signup`, { name, email, password },{withCredentials:true});
-      console.log(res.data)
-    
+      const res = await axios.post(
+        `${serverUrl}/api/auth/signup`,
+        { name, email, password },
+        { withCredentials: true }
+      );
+      console.log(res.data);
     } catch (error) {
       console.error("Signup failed:", error);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    // Implement Google Signup logic here
+    try {
+      const res = await signInWithPopup(auth, provider);
+      const response = await axios.post(
+        `${serverUrl}/api/auth/google-login`,
+        {
+          name: res.user.displayName,
+          email: res.user.email,
+        },
+        { withCredentials: true }
+      );
+      console.log("Google Signup response:", response.data);
+    } catch (error) {
+      console.error("Google Signup failed:", error);
     }
   };
 
@@ -40,8 +64,14 @@ const Signup = () => {
         </span>
       </div>
       <div className="max-w-[600px] w-[90%] h-[500px] bg-[#00000025] border-[1px] border-[#96969635] backdrop-blur-2xl rounded-lg shadow-lg flex items-center justify-center">
-        <form onSubmit={handleSignup} className="w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]">
-          <div className="w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer">
+        <form
+          onSubmit={handleSignup}
+          className="w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]"
+        >
+          <div
+            onClick={handleGoogleSignup}
+            className="w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer"
+          >
             <FcGoogle size={24} />
             <span>Sign up with Google</span>
           </div>
@@ -87,8 +117,15 @@ const Signup = () => {
                 size={20}
               />
             )}
-            <button className="w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold">Create Account</button>
-            <p onClick={()=> navigate("/login")} className="flex gap-[10px]">You have any account?<span className="text-[#5555f6cf] text-[17px] font-semibold cursor-pointer">Login</span></p>
+            <button className="w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold">
+              Create Account
+            </button>
+            <p onClick={() => navigate("/login")} className="flex gap-[10px]">
+              You have any account?
+              <span className="text-[#5555f6cf] text-[17px] font-semibold cursor-pointer">
+                Login
+              </span>
+            </p>
           </div>
         </form>
       </div>
