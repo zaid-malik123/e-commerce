@@ -1,115 +1,89 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import Logo from "../assets/logo.png";
 import { FcGoogle } from "react-icons/fc";
-
+import { FaRegEye } from "react-icons/fa";
+import { FaRegEyeSlash } from "react-icons/fa";
+import { useState } from "react";
+import { serverUrl } from "../App";
+import axios from "axios";
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
-  // 🧠 State for two-way binding
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  // 🔁 Input handler
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // 🚀 Submit handler
-  const handleSubmit = (e) => {
+  const handleLogin = async(e) => {
     e.preventDefault();
-    console.log("Login Data:", formData);
-    // 👉 Yahan API call karke login kar sakte ho
-  };
-
+    try {
+      const res = await axios.post(`${serverUrl}/api/auth/login`, { email, password },{withCredentials:true});
+      console.log(res.data.user)
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  }
   return (
     <div className="w-screen min-h-screen bg-gradient-to-l from-[#141414] to-[#0c2025] text-white flex flex-col items-center justify-start">
-      
-      {/* Navbar */}
       <div
         onClick={() => navigate("/")}
-        className="w-full h-[80px] flex items-center justify-start px-[30px] gap-[10px] cursor-pointer"
+        className="w-[100%] h-[80px] flex items-center justify-start px-[30px] gap-[10px] cursor-pointer"
       >
-        <img className="w-[40px]" src={Logo} alt="Logo" />
-        <h2 className="text-xl font-semibold">OneCart</h2>
+        <img className="w-[40px]" src={Logo} alt="" />
+        <h1 className="text-[22px] font-sans">OneCart</h1>
       </div>
-
-      {/* Header Text */}
-      <div className="w-full mt-5 flex flex-col items-center justify-center gap-[10px]">
-        <span className="text-[28px] font-bold">Login Page</span>
-        <span className="text-[16px] text-gray-300">
-          Welcome back — Sign in to continue shopping
+      <div className="w-[100%] h-[100px] flex items-center justify-center flex flex-col gap-[10px]">
+        <span className="text-[25px] font-semibold">Login Page</span>
+        <span className="text-[16px]">
+          Welcome to OneCart , Place your Order
         </span>
       </div>
-
-      {/* Form Box */}
-      <div className="max-w-[500px] w-[90%] mt-8 bg-[#00000040] border border-[#96969635] rounded-2xl shadow-lg p-8 backdrop-blur-md">
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-          
-          {/* Email Field */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-gray-300">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              className="w-full h-[45px] px-4 rounded-lg bg-[#1f1f1f] text-white outline-none border border-[#3a3a3a] focus:border-[#00bcd4] transition"
-            />
-          </div>
-
-          {/* Password Field */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-gray-300">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              className="w-full h-[45px] px-4 rounded-lg bg-[#1f1f1f] text-white outline-none border border-[#3a3a3a] focus:border-[#00bcd4] transition"
-            />
-          </div>
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="w-full h-[45px] bg-[#00bcd4] hover:bg-[#0097a7] rounded-lg text-white font-semibold mt-3 transition"
-          >
-            Login
-          </button>
-
-          {/* OR Line */}
-          <div className="flex items-center justify-center gap-3 my-2">
-            <div className="w-1/3 h-[1px] bg-gray-500"></div>
-            <span className="text-gray-400 text-sm">or</span>
-            <div className="w-1/3 h-[1px] bg-gray-500"></div>
-          </div>
-
-          {/* Google Login */}
-          <div className="w-full h-[45px] bg-[#42656cae] hover:bg-[#517f86ae] rounded-lg flex items-center justify-center gap-[10px] cursor-pointer transition">
-            <FcGoogle size={22} />
+      <div className="max-w-[600px] w-[90%] h-[500px] bg-[#00000025] border-[1px] border-[#96969635] backdrop-blur-2xl rounded-lg shadow-lg flex items-center justify-center">
+        <form onSubmit={handleLogin} className="w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]">
+          <div className="w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer">
+            <FcGoogle size={24} />
             <span>Login with Google</span>
           </div>
-
-          {/* Signup Redirect */}
-          <div className="text-center text-sm text-gray-400 mt-4">
-            Don’t have an account?{" "}
-            <span
-              onClick={() => navigate("/signup")}
-              className="text-[#00bcd4] hover:underline cursor-pointer"
-            >
-              Sign up
-            </span>
+          <div className="w-[100%] h-[20px] flex items-center justify-center gap-[10px]">
+            <div className="w-[40%] h-[1px] bg-[#96969635]"></div> Or{" "}
+            <div className="w-[40%] h-[1px] bg-[#96969635]"></div>
+          </div>
+          <div className="w-[90%] h-[400px] flex flex-col items-center justify-center gap-[15px] relative">
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Email"
+              className="w-[100%] h-[50px] border-[2px] border-[#96969635] rounded-lg bg-transparent placeholder-[#ffffffc7] px-[20px] font-semibold"
+              type="text"
+            />
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Password"
+              className="w-[100%] h-[50px] border-[2px] border-[#96969635] rounded-lg bg-transparent placeholder-[#ffffffc7] px-[20px] font-semibold"
+              type={showPassword ? "text" : "password"}
+            />
+            {!showPassword ? (
+              <FaRegEyeSlash
+                onClick={() => setShowPassword(true)}
+                className="absolute right-[5%] bottom-[57%]"
+                size={20}
+              />
+            ) : (
+              <FaRegEye
+                onClick={() => setShowPassword(false)}
+                className="absolute right-[5%] bottom-[57%]"
+                size={20}
+              />
+            )}
+            <button className="w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold">Create Account</button>
+            <p onClick={()=> navigate("/signup")} className="flex gap-[10px]">You don't have any account?<span className="text-[#5555f6cf] text-[17px] font-semibold cursor-pointer">Sign Up</span></p>
           </div>
         </form>
       </div>
     </div>
   );
-};
+}
 
-export default Login;
+
+export default Login

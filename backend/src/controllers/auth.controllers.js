@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { genToken } from "../config/token.js";
 import User from "../models/user.model.js";
-import validator from "validator"
+import validator from "validator";
 
 export const signup = async (req, res) => {
   try {
@@ -14,11 +14,13 @@ export const signup = async (req, res) => {
     if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
-    if(!validator.isEmail(email)){
+    if (!validator.isEmail(email)) {
       return res.status(400).json({ message: "Enter valid email" });
     }
     if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -48,30 +50,48 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // 🧠 Basic checks
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: "Enter a valid email address" });
+    }
+
+    // 🔍 Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User does not exist" });
     }
-    if(!validator.isEmail(email)){
-      return res.status(400).json({ message: "Enter valid email" });
-    }
+
+    // 🔐 Compare passwords
     const compare = await bcrypt.compare(password, user.password);
     if (!compare) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // ✅ Generate token and set cookie
     const token = genToken(user._id);
-
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "strict",
-      secure: false,
+      secure: false, // set true in production
     });
 
-    return res.status(200).json(user);
+    return res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      token,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
