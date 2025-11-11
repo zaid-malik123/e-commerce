@@ -8,9 +8,11 @@ import axios from "axios";
 import { serverUrl } from "../App";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../utils/firebase";
+import { useDispatch } from "react-redux";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +26,8 @@ const Signup = () => {
         { name, email, password },
         { withCredentials: true }
       );
-      console.log(res.data);
+      dispatch(res.data)
+      navigate("/")
     } catch (error) {
       console.error("Signup failed:", error);
     }
@@ -42,7 +45,8 @@ const Signup = () => {
         },
         { withCredentials: true }
       );
-      console.log("Google Signup response:", response.data);
+      dispatch(response.data)
+      navigate("/")
     } catch (error) {
       console.error("Google Signup failed:", error);
     }
