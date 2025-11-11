@@ -3,13 +3,17 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import useGetCurrentUser from "./hooks/useGetCurrentUser";
+import Nav from "./components/Nav";
+import { useSelector } from "react-redux";
 
 export const serverUrl = "http://localhost:3000"
 
 const App = () => {
+ const {user} = useSelector(state => state.userSlice)
   useGetCurrentUser()
   return (
     <div>
+      {user && <Nav/>}
       <Routes>
         <Route path="/signup" element={<Signup />}></Route>
         <Route path="/login" element={<Login />}></Route>
