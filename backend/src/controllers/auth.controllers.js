@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { genToken } from "../config/token.js";
+import { genToken, genToken1 } from "../config/token.js";
 import User from "../models/user.model.js";
 import validator from "validator";
 
@@ -97,7 +97,7 @@ export const logout = async (req, res) => {
 
 export const googleLogin = async (req, res) => {
   try {
-     const { name, email } = req.body;
+    const { name, email } = req.body;
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -119,4 +119,27 @@ export const googleLogin = async (req, res) => {
     console.log(error);
     return res.status(500).json({ message: error.message });
   }
-}
+};
+
+export const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = genToken1(email);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: "strict",
+        secure: false, // set true in production
+      });
+      return res.status(200).json(token);
+    }
+    return res.status(400).json("Invalid credintials")
+  } catch (error) {
+    console.log(error);
+  }
+};
